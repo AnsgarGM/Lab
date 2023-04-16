@@ -20,13 +20,34 @@ analisis_estatico(){
     echo "Parametrito $1"
 
     #archivo = "$1"
-    
-    sshpass -p 123456 scp -P 2222 "$1" analista@localhost:/home/analista/Documentos
-    sshpass -p 123456 ssh -p 2222 analista@localhost "file Documentos/$1" > textito.txt
+    COMANDOS=(
+        "file Documentos/$1"
+        "exiftool Documentos/$1"
+        "md5sum Documentos/$1"
+        "sha1sum Documentos/$1"
+        "sha256sum Documentos/$1"
+    )
 
-    sshpass -p 123456 ssh -p 2222 analista@localhost "md5sum Documentos/$1" > md5.txt
-    sshpass -p 123456 ssh -p 2222 analista@localhost "sha1sum Documentos/$1" > sha1.txt
-    sshpass -p 123456 ssh -p 2222 analista@localhost "sha256sum Documentos/$1" > sha256.txt
+    dir_salida="./salida" # Cambiar a la estructura del documento de la practica
+    if [ ! -d "$dir_salida" ]; then
+        mkdir "$dir_salida"
+    fi
+
+    sshpass -p 123456 scp -P 2222 "./$1" analista@localhost:/home/analista/Documentos/$1
+    #echo "sshpass -p 123456 scp -P 2222 ./$1 analista@localhost:/home/analista/Documentos/$1"
+
+    for cmd in "${COMANDOS[@]}"; do
+        #echo "Comando $cmd"
+        sshpass -p 123456 ssh -p 2222 analista@localhost "$cmd" >> "${dir_salida}/$(echo "$cmd" | tr ' ' '-' | tr '/' '-').txt"
+        #echo "sshpass -p 123456 ssh -p 2222 analista@localhost $cmd > ${dir_salida}/$(echo $cmd | tr ' ' '-').txt"
+    done
+
+    #sshpass -p 123456 ssh -p 2222 analista@localhost "file Documentos/$1" > textito.txt
+    #sshpass -p 123456 ssh -p 2222 analista@localhost "exiftool Documentos/$1" > textito.txt
+
+    #sshpass -p 123456 ssh -p 2222 analista@localhost "md5sum Documentos/$1" > md5.txt
+    #sshpass -p 123456 ssh -p 2222 analista@localhost "sha1sum Documentos/$1" > sha1.txt
+    #sshpass -p 123456 ssh -p 2222 analista@localhost "sha256sum Documentos/$1" > sha256.txt
 
 
 }
@@ -49,7 +70,7 @@ else
     if [ -f "$1" ]; then
         # Caso 1
         echo "Caso 1"
-        analisis_estatico "Pract2.sh"
+        analisis_estatico "$1"
 
     else
         # Caso 2
