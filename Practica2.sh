@@ -15,7 +15,6 @@ iniciar_maquinas(){
     # Codigo para restablecer maquina virtal
 #}
 
-
 analisis_estatico(){
     echo "Parametrito $1"
 
@@ -52,16 +51,40 @@ analisis_estatico(){
 
 }
 
+crea_experimento(){
+
+    dir="./MLWD/Experimentos/"
+
+    # Verificar si hay carpetas numeradas en el directorio
+    if [ -z "$(ls $dir | grep -E "^[0-9]+$")" ]; then
+        next_num=1
+    else
+        # Obtener el último número y sumar 1
+        last_num=$(ls $dir | grep -E "^[0-9]+$" | sort -n | tail -1)
+        next_num=$((last_num+1))
+    fi
+
+    # Crear la nueva carpeta
+    mkdir "$dir/$next_num"
+    echo "Se ha creado la carpeta $next_num en $dir."
+
+
+    # experimento = $(ls $dir | grep -E "^[0-9]+$" | sort -n | tail -1)
+    # echo "num $experimento"
+}
+
+
 crear_directorios
+
 
 # if [ "$vm_state" == "running" ]; then
 #     echo "La máquina virtual $vm_name está encendida."
 vm_state=$(VBoxManage showvminfo "Estatico" | grep "State:" | awk '{print $2}')
 
 if [ "$vm_state" == "powered" ]; then
-    #echo "La máquina virtual $vm_name está apagada."
-    iniciar_maquinas
-    sleep 7
+    echo "La máquina virtual $vm_name está apagada."
+    #iniciar_maquinas
+    #sleep 7
 fi
 
 if [[ $( file -b "$1" ) =~ .*JSON.* ]]; then
@@ -78,7 +101,9 @@ else
     if [ -f "$1" ]; then
         # Caso 1
         echo "Caso 1"
-        analisis_estatico "$1"
+        crea_experimento
+        # ciclar binarios para crear carpetas
+        #analisis_estatico "$1"
 
     else
         # Caso 2
