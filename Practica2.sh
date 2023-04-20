@@ -53,8 +53,16 @@ analisis_estatico(){
 }
 
 crear_directorios
-iniciar_maquinas
-sleep 7
+
+# if [ "$vm_state" == "running" ]; then
+#     echo "La máquina virtual $vm_name está encendida."
+vm_state=$(VBoxManage showvminfo "Estatico" | grep "State:" | awk '{print $2}')
+
+if [ "$vm_state" == "powered" ]; then
+    #echo "La máquina virtual $vm_name está apagada."
+    iniciar_maquinas
+    sleep 7
+fi
 
 if [[ $( file -b "$1" ) =~ .*JSON.* ]]; then
     # Caso 3 y 4
